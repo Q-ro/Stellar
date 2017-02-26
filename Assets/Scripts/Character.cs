@@ -55,22 +55,26 @@ public class Character : MonoBehaviour {
 
 
         //Define the animation to play
-        if (_moveDirection != Vector2.zero)
-        {
-            _animator.SetBool("Iswalking", true);
 
-            //TODO
-            //Transfor into an angle, playe the wlaking animation that correcponds the best to the andle
-            if (_moveDirection.x > 0)
+        if (_animator != null)
+        {
+            if (_moveDirection != Vector2.zero)
             {
-            }
+                _animator.SetBool("Iswalking", true);
+
+                //TODO
+                //Transfor into an angle, playe the wlaking animation that correcponds the best to the andle
+                if (_moveDirection.x > 0)
+                {
+                }
 
                 //_animator.SetFloat("Input_x", _rigidBody2D.x);
-            //_animator.SetFloat("Input_y", _rigidBody2D.y);
-        }
-        else
-        {
-            _animator.SetBool("Iswalking", false);
+                //_animator.SetFloat("Input_y", _rigidBody2D.y);
+            }
+            else
+            {
+                _animator.SetBool("Iswalking", false);
+            }
         }
 
 
