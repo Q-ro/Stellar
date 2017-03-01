@@ -10,24 +10,36 @@ public class Character : MonoBehaviour {
     private Rigidbody2D _rigidBody2D;
     private Vector2 _moveDirection;
     private Animator _animator;
+    private Collider2D _swordAttack;
+    private AudioSource _audio;
 
     //Public variables
     //Player's Health
     [Tooltip("Amount of hitpoint the player has")]
     public int health;
+
     //Player's movespeed
     [Tooltip("How fast the character goes")]
     public float moveSpeed;
+
     //Max speed the cahracter will have
     [Tooltip("Max speed for the player")]
     public float topSpeed;
+
     //Player's invincibility time
     [Tooltip("Recovery time")]
     public float invincibilityTime;
 
+    [Tooltip("Delay between attacks")]
+    public float attackSpeed;
+
+    //Sound effects
+    [Tooltip("Sound made by using the sword")]
+    public AudioClip swordAttack;
+
     //Flags
     //Keeps track of when the player is attacking
-    public bool isAttack = false;
+    private bool _isAttacking = false;
     //Keeps track of when the player is rolling
     public bool isRolling = false;
     //Keeps track of when the player is shooting
@@ -42,17 +54,34 @@ public class Character : MonoBehaviour {
         
         //store the reference to the current rigid body of this game object
         _rigidBody2D = this.GetComponent<Rigidbody2D>();
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
+
+        //Store the reference of the sword collider into the variable
+        _swordAttack = transform.FindChild("Sword").GetComponent<Collider2D>();
+
+        //Store a reference to the audio source for the player game object
+        _audio = GetComponent<AudioSource>();
+
+
+    }
+
+    // Update is called once per frame
+    void Update() {
 
         //Get the current input and generate a vector in the direction of the movement
-        Vector2 _moveDirection = (new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")));
-        // Make the player move in the direction of the vector
-        _rigidBody2D.AddForce(_moveDirection + _rigidBody2D.position * Time.deltaTime);
+        _moveDirection = (new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")));
 
+        // Make the player move in the direction of the vector
+        //_rigidBody2D.AddForce(_moveDirection + _rigidBody2D.position * Time.deltaTime);
+        if (_moveDirection != Vector2.zero)
+        {
+            isMoving = true;
+            _rigidBody2D.velocity = (_moveDirection * Mathf.Clamp(moveSpeed * Time.deltaTime, 0, topSpeed));
+        }
+        else
+        {
+            isMoving = false;
+            _rigidBody2D.velocity = Vector2.zero;
+        }
 
         //Define the animation to play
 
@@ -60,7 +89,7 @@ public class Character : MonoBehaviour {
         {
             if (_moveDirection != Vector2.zero)
             {
-                _animator.SetBool("Iswalking", true);
+                _animator.SetBool("IsWalking", true);
 
                 //TODO
                 //Transfor into an angle, playe the wlaking animation that correcponds the best to the andle
@@ -73,11 +102,34 @@ public class Character : MonoBehaviour {
             }
             else
             {
-                _animator.SetBool("Iswalking", false);
+                _animator.SetBool("IsWalking", false);
             }
         }
 
+        //Attacking
+        if(Input.GetButton("Fire1"))
+        {
+            _isAttacking = true;
+            //TODO: Still impcomplete method
+            //StartCoroutine(PlayerAttack());
+        }
 
+
+
+    }
+
+    IEnumerator PlayerAttack()
+    {
+        Debug.Log ("ground atacking");
+        _animator.SetTrigger("SwordAttack");
+        PlaySound(swordAttack);
+        yield return new WaitForSeconds(attackSpeed);
+        _isAttacking = false;
+    }
+
+    void PlaySound(AudioClip clip)
+    {
+        _audio.PlayOneShot(clip);
     }
 
     string MoveDirection(Vector2 direction)
